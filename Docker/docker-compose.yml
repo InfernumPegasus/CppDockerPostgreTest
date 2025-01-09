@@ -39,7 +39,7 @@ services:
     stdin_open: true
 
   pgadmin:
-    image: dpage/pgadmin4:latest
+    image: dpage/pgadmin4:8.14.0
     container_name: pgadmin_container
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
