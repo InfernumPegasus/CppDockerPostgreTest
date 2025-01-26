@@ -17,12 +17,9 @@ void stopRunning(int sig) {
   }
 }
 
-int main() {
+void DoConsumerWork() {
   using namespace kafka;
   using namespace kafka::clients::consumer;
-
-  // Use Ctrl-C to terminate the program
-  signal(SIGINT, stopRunning);  // NOLINT
 
   const std::string brokers = "localhost:29092";
   const Topic topic = "test-topic";
@@ -55,7 +52,13 @@ int main() {
       }
     }
   }
+}
 
-  // No explicit close is needed, RAII will take care of it
-  consumer.close();
+int main() {
+  // Use Ctrl-C to terminate the program
+  signal(SIGINT, stopRunning);  // NOLINT
+
+  DoConsumerWork();
+
+  return 0;
 }
