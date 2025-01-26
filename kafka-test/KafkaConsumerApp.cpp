@@ -6,7 +6,7 @@
 
 std::atomic_bool running = {true};
 
-void stopRunning(int sig) {
+void StopRunning(int sig) {
   if (sig != SIGINT) return;
 
   if (running) {
@@ -56,7 +56,7 @@ void DoConsumerWork() {
 
 int main() {
   // Use Ctrl-C to terminate the program
-  signal(SIGINT, stopRunning);  // NOLINT
+  signal(SIGINT, StopRunning);  // NOLINT
 
   DoConsumerWork();
 
