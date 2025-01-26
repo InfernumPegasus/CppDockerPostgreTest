@@ -47,6 +47,10 @@ void DoConsumerWork() {
         std::cout << "    Headers  : " << toString(record.headers()) << std::endl;
         std::cout << "    Key   [" << record.key().toString() << "]" << std::endl;
         std::cout << "    Value [" << record.value().toString() << "]" << std::endl;
+
+        // For custom types, type erasure via void pointers is used
+        // TODO : develop mechanism to explicitly cast const void * to required type
+        std::cout << "    FLOAT [" << *reinterpret_cast<const float*>(record.value().data()) << "]" << std::endl;
       } else {
         std::cerr << record.toString() << std::endl;
       }

@@ -28,12 +28,34 @@ void SendValues(pqxx::work& work, const kafka::Topic& topic, KafkaProducer& prod
     }
   };
 
-  for (const auto values = CreateValues(work); const auto& value : values) {
-    const ProducerRecord record(topic, kafka::NullKey,
-                                kafka::Value(value.c_str(), value.size()));
+  {
+    std::cout << "Sending messages with FLOAT type" << std::endl;
 
-    // Send a message
-    producer.send(record, deliveryCb, KafkaProducer::SendOption::ToCopyRecordValue);
+    constexpr float f = 2.34;
+
+    // Raw pointers usage test
+    const void* fPtr = &f;
+
+    // Smart pointers usage test
+    auto fUptr = std::make_unique<float>(f);
+
+    const ProducerRecord r1(topic, kafka::NullKey, kafka::Value(fPtr, sizeof(f)));
+    const ProducerRecord r2(topic, kafka::NullKey, kafka::Value(fUptr.get(), sizeof(f)));
+
+    producer.send(r1, deliveryCb, KafkaProducer::SendOption::ToCopyRecordValue);
+    producer.send(r2, deliveryCb, KafkaProducer::SendOption::ToCopyRecordValue);
+  }
+
+  {
+    std::cout << "Sending messages with STRINGS type" << std::endl;
+
+    for (const auto values = CreateValues(work); const auto& value : values) {
+      const ProducerRecord record(topic, kafka::NullKey,
+                                  kafka::Value(value.c_str(), value.size()));
+
+      // Send a message
+      producer.send(record, deliveryCb, KafkaProducer::SendOption::ToCopyRecordValue);
+    }
   }
 }
 
