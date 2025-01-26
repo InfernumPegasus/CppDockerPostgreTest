@@ -1,3 +1,4 @@
+#include <KafkaUtils.h>
 #include <kafka/KafkaConsumer.h>
 #include <signal.h>
 
@@ -45,12 +46,21 @@ void DoConsumerWork() {
         std::cout << "    Offset   : " << record.offset() << std::endl;
         std::cout << "    Timestamp: " << record.timestamp().toString() << std::endl;
         std::cout << "    Headers  : " << toString(record.headers()) << std::endl;
-        std::cout << "    Key   [" << record.key().toString() << "]" << std::endl;
-        std::cout << "    Value [" << record.value().toString() << "]" << std::endl;
 
-        // For custom types, type erasure via void pointers is used
-        // TODO : develop mechanism to explicitly cast const void * to required type
-        std::cout << "    FLOAT [" << *reinterpret_cast<const float*>(record.value().data()) << "]" << std::endl;
+        try {
+          std::string stringValue = ReceiveValue<std::string>(record.value());
+          std::cout << "    STRING [" << stringValue << "]" << std::endl;
+        } catch (const std::exception& e) {
+          std::cerr << "    Failed to deserialize as string: " << e.what() << std::endl;
+        }
+
+        try {
+          float floatValue = ReceiveValue<float>(record.value());
+          std::cout << "    FLOAT [" << floatValue << "]" << std::endl;
+        } catch (const std::exception& e) {
+          std::cerr << "    Failed to deserialize as float: " << e.what() << std::endl;
+        }
+
       } else {
         std::cerr << record.toString() << std::endl;
       }
