@@ -35,14 +35,14 @@ void SendValues(pqxx::work& work, const kafka::Topic& topic, KafkaProducer& prod
 
     constexpr float f = 2.34;
 
-    SendValue(producer, topic, f, deliveryCb);
+    KafkaUtils::SendValue(producer, topic, kafka::NullKey, f, deliveryCb);
   }
 
   {
     std::cout << "Sending messages with STRINGS type" << std::endl;
 
     for (const auto values = CreateValues(work); const auto& value : values) {
-      SendValue(producer, topic, value, deliveryCb);
+      KafkaUtils::SendValue(producer, topic, kafka::NullKey, value, deliveryCb);
     }
   }
 }
