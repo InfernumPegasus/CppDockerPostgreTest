@@ -23,22 +23,16 @@ void SendValue(KafkaProducer& producer, const kafka::Topic& topic, const kafka::
   producer.send(record, deliveryCb, option);
 }
 
-inline void SendValue(KafkaProducer& producer, const kafka::Topic& topic,
-                      const kafka::Key& key, const kafka::Value& value,
-                      const DeliveryCallback& deliveryCb,
-                      const KafkaProducer::SendOption option =
-                          KafkaProducer::SendOption::ToCopyRecordValue) {
-  const ProducerRecord record(topic, key, value);
-
-  producer.send(record, deliveryCb, option);
-}
-
 template <typename T>
 T ValueTo(const kafka::Value& value) {
   if (!value.data()) {
     throw std::runtime_error("Received empty value");
   }
-  const std::string serializedData(static_cast<const char*>(value.data()), value.size());
+
+  const std::vector<std::byte> serializedData(
+      static_cast<const std::byte*>(value.data()),
+      static_cast<const std::byte*>(value.data()) + value.size());
+
   return Deserialize<T>(serializedData);
 }
 
