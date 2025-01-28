@@ -2,29 +2,29 @@
 
 #include <kafka/KafkaProducer.h>
 
+#include "OwningBuffer.h"
 #include "SerializationUtils.h"
 
-namespace KafkaUtils {
+namespace KAFKA_API {
+namespace extensions {
 
 using namespace kafka::clients::producer;
 
-using DeliveryCallback = std::function<void(const RecordMetadata&, const kafka::Error&)>;
+using DeliveryCallback = std::function<void(const RecordMetadata&, const Error&)>;
 
-template <typename T>
-void SendValue(KafkaProducer& producer, const kafka::Topic& topic, const kafka::Key& key,
-               const T& value, const DeliveryCallback& deliveryCb,
-               const KafkaProducer::SendOption option =
-                   KafkaProducer::SendOption::ToCopyRecordValue) {
-  const auto serializedValue = Serialize(value);
+inline void SendValue(
+    KafkaProducer& producer, const Topic& topic, const Key& key, const Value& value,
+    const DeliveryCallback& deliveryCb,
+    const KafkaProducer::SendOption option = KafkaProducer::SendOption::ToCopyRecordValue,
+    const KafkaProducer::ActionWhileQueueIsFull action =
+        KafkaProducer::ActionWhileQueueIsFull::Block) {
+  const ProducerRecord record(topic, key, value);
 
-  const ProducerRecord record(
-      topic, key, kafka::Value(serializedValue.data(), serializedValue.size()));
-
-  producer.send(record, deliveryCb, option);
+  producer.send(record, deliveryCb, option, action);
 }
 
 template <typename T>
-T ValueTo(const kafka::Value& value) {
+T ValueTo(const Value& value) {
   if (!value.data()) {
     throw std::runtime_error("Received empty value");
   }
@@ -36,4 +36,12 @@ T ValueTo(const kafka::Value& value) {
   return Deserialize<T>(serializedData);
 }
 
-}  // namespace KafkaUtils
+template <typename T>
+OwningBuffer ValueFrom(const T& value) {
+  const auto serialized = Serialize(value);
+
+  return OwningBuffer(serialized);
+}
+
+}  // namespace extensions
+}  // namespace KAFKA_API

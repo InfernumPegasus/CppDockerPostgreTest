@@ -35,14 +35,18 @@ void SendValues(pqxx::work& work, const kafka::Topic& topic, KafkaProducer& prod
 
     constexpr float f = 2.34;
 
-    KafkaUtils::SendValue(producer, topic, kafka::NullKey, f, deliveryCb);
+    kafka::extensions::SendValue(producer, topic, kafka::NullKey,
+                                 kafka::extensions::ValueFrom(f).AsConstBuffer(),
+                                 deliveryCb);
   }
 
   {
     std::cout << "Sending messages with STRINGS type" << std::endl;
 
     for (const auto values = CreateValues(work); const auto& value : values) {
-      KafkaUtils::SendValue(producer, topic, kafka::NullKey, value, deliveryCb);
+      kafka::extensions::SendValue(producer, topic, kafka::NullKey,
+                                   kafka::extensions::ValueFrom(value).AsConstBuffer(),
+                                   deliveryCb);
     }
   }
 }

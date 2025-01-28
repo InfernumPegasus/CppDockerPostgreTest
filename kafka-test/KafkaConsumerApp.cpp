@@ -48,14 +48,15 @@ void DoConsumerWork() {
         std::cout << "    Headers  : " << toString(record.headers()) << std::endl;
 
         try {
-          std::string stringValue = KafkaUtils::ValueTo<std::string>(record.value());
+          std::string stringValue =
+              KAFKA_API::extensions::ValueTo<std::string>(record.value());
           std::cout << "    STRING [" << stringValue << "]" << std::endl;
         } catch (const std::exception& e) {
           std::cerr << "    Failed to deserialize as string: " << e.what() << std::endl;
         }
 
         try {
-          float floatValue = KafkaUtils::ValueTo<float>(record.value());
+          float floatValue = KAFKA_API::extensions::ValueTo<float>(record.value());
           std::cout << "    FLOAT [" << floatValue << "]" << std::endl;
         } catch (const std::exception& e) {
           std::cerr << "    Failed to deserialize as float: " << e.what() << std::endl;
