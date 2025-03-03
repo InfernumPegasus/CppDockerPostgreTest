@@ -1,0 +1,14 @@
+{
+  "name": "postgres-sink-connector",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+    "connection.url": "jdbc:postgresql://postgres:5432/postgres_db",
+    "connection.user": "postgres_user",
+    "connection.password": "postgres_password",
+    "topics": "sink_topic",
+    "auto.create": "true",
+    "auto.evolve": "true",
+    "insert.mode": "insert",
+    "pk.mode": "none"
+  }
+}

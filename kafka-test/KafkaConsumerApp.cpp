@@ -39,31 +39,30 @@ void DoConsumerWork() {
     // Poll messages from Kafka brokers
     for (auto records = consumer.poll(std::chrono::milliseconds(100));
          const auto& record : records) {
-      if (!record.error()) {
-        std::cout << "Got a new message..." << std::endl;
-        std::cout << "    Topic    : " << record.topic() << std::endl;
-        std::cout << "    Partition: " << record.partition() << std::endl;
-        std::cout << "    Offset   : " << record.offset() << std::endl;
-        std::cout << "    Timestamp: " << record.timestamp().toString() << std::endl;
-        std::cout << "    Headers  : " << toString(record.headers()) << std::endl;
-
-        try {
-          std::string stringValue =
-              KAFKA_API::extensions::ValueTo<std::string>(record.value());
-          std::cout << "    STRING [" << stringValue << "]" << std::endl;
-        } catch (const std::exception& e) {
-          std::cerr << "    Failed to deserialize as string: " << e.what() << std::endl;
-        }
-
-        try {
-          float floatValue = KAFKA_API::extensions::ValueTo<float>(record.value());
-          std::cout << "    FLOAT [" << floatValue << "]" << std::endl;
-        } catch (const std::exception& e) {
-          std::cerr << "    Failed to deserialize as float: " << e.what() << std::endl;
-        }
-
-      } else {
+      if (record.error()) {
         std::cerr << record.toString() << std::endl;
+        continue;
+      }
+
+      std::cout << "Got a new message..." << std::endl;
+      std::cout << "    Topic    : " << record.topic() << std::endl;
+      std::cout << "    Partition: " << record.partition() << std::endl;
+      std::cout << "    Offset   : " << record.offset() << std::endl;
+      std::cout << "    Timestamp: " << record.timestamp().toString() << std::endl;
+      std::cout << "    Headers  : " << toString(record.headers()) << std::endl;
+
+      try {
+        std::string stringValue = kafka::extensions::ValueTo<std::string>(record.value());
+        std::cout << "    STRING [" << stringValue << "]" << std::endl;
+      } catch (const std::exception& e) {
+        std::cerr << "    Failed to deserialize as string: " << e.what() << std::endl;
+      }
+
+      try {
+        float floatValue = kafka::extensions::ValueTo<float>(record.value());
+        std::cout << "    FLOAT [" << floatValue << "]" << std::endl;
+      } catch (const std::exception& e) {
+        std::cerr << "    Failed to deserialize as float: " << e.what() << std::endl;
       }
     }
   }
